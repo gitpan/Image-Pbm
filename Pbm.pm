@@ -1,6 +1,6 @@
 package Image::Pbm;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use strict;
 use warnings;
@@ -60,6 +60,7 @@ Image::Pbm - Load, create, manipulate and save pbm image files.
   $i->line     ( 2, 2, 22, 22 => 1 );
   $i->rectangle( 4, 4, 40, 20 => 1 );
   $i->ellipse  ( 6, 6, 30, 15 => 1 );
+  $i->xybit    (       42, 22 => 1 );
   print $i->as_string;
   $i->save('test.pbm');
 
@@ -70,6 +71,65 @@ Image::Pbm - Load, create, manipulate and save pbm image files.
 This module provides basic load, manipulate and save functionality for
 the pbm file format. It inherits from C<Image::Xbm> which provides additional
 functionality.
+
+See L<Image::Base> and L<Image::Xbm> for a description of all
+inherited methods.
+
+=head1 EXAMPLE
+
+Imagine, we have to create self-contained web pages (with embedded images).
+Most browsers understand the xbm image format, but generating xbm files
+requires a certain effort (or a full fledged graphics software package).
+On the other hand, generating pbm files is easy. Indeed, it's more likely
+that you use your favorite text editor instead of Image::Pbm for that task.
+Reading pbm files is slightly more difficult.
+That's where the Image::[PX]bm modules come into play:
+
+  use Image::Pbm();
+
+  Image::Pbm->new(-file,'test.pbm')
+    ->new_from_image('Image::Xbm')
+      ->save('test.xbm');
+
+Once we have xbm files, we can serve these images onto the Internet.
+To embed these images into a web page, we can use the "data" URL scheme:
+
+  http://www.ietf.org/rfc/rfc2397.txt
+
+which requires the standard %xx hex encoding of URLs:
+
+  use URI::Escape();
+
+  my $data = URI::Escape::uri_escape( $xbm );
+
+  print qq(<img src="data:image/x-xbitmap,$data">);
+
+This works with Mozilla and Opera.
+For Internet Explorer, we can use the following workaround:
+
+  print <<"HTML";
+  <pre id="xbm" style="display: none;">$xbm</pre>
+
+  <script>
+    function xbm() { return document.getElementById('xbm').innerHTML; }
+  </script>
+
+  <img src="javascript:xbm()">
+  HTML
+
+This works with Mozilla too.
+
+=head1 TODO
+
+Contact Mark Summerfield because the inheritance hierarchy
+
+  Image::Pbm <: Image::Xbm <: Image::Base
+
+is suboptimal and should look like
+
+  Image::Xbm <:
+                Image::Bitmap <: Image::Base
+  Image::Pbm <:
 
 =head1 AUTHOR
 
