@@ -1,3 +1,9 @@
+2004-04-01  0.02
+
+  Localized the change of properties in save().
+
+  Added tests.
+
 2004-03-29  0.01
 
-  First public release.
+  First public release on CPAN.

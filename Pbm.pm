@@ -1,6 +1,6 @@
 package Image::Pbm;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use strict;
 use warnings;
@@ -30,6 +30,9 @@ sub save
   my $self = shift;
   my $file = shift || $self->get(-file ) or die 'No file specified';
 
+  # I hate getter/setter! They may be helpful in languages
+  # which fail to hide the implementation of properties.
+  my ( $setch, $unsetch ) = $self->get(-setch,-unsetch );
   $self->set(-file => $file,-setch => ' 1',-unsetch => ' 0');
 
   open my $fh, ">$file" or die "Failed to open `$file': $!";
@@ -39,6 +42,8 @@ sub save
   print $fh $self->get(-width );
   print $fh $self->get(-height );
   print $fh $self->as_string;
+
+  $self->set(-setch => $setch,-unsetch => $unsetch );
 }
 
 1;
