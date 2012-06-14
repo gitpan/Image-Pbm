@@ -1,28 +1,28 @@
 package Image::Pbm;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use strict;
 use warnings;
 use Image::Xbm(); our @ISA = 'Image::Xbm';
-use Image::PBMlib();
+use Image::PBMlib 2.00 ();
 
 sub load
 {
   my $self = shift ;
   my $file = shift || $self->get(-file ) or die 'No file specified';
 
-  open my $fh, $file or die "Failed to open `$file': $!";
-
-  my $h = Image::PBMlib::readppmheader( $fh );
+  open my $f, $file or die "Failed to open `$file': $!";
+       my $h = {};
+       my $p = [];
+  Image::PBMlib::readpnmfile( $f, $h, $p,'dec');
   die "Failed to parse header in `$file': $h->{error}" if $h->{error};
   die "Wrong magic number: ($h->{type})" if $h->{type} != 1;
 
   $self->_set(  -file => $file );
   $self->_set( -width => $h->{width} );
   $self->_set(-height => $h->{height} );
-  $self->_set(  -bits => pack 'b*', join '', Image::PBMlib::readpixels_dec(
-    $fh, $h->{type}, $h->{width} * $h->{height} ) );
+  $self->_set(  -bits => pack 'b*', join '', map { @$_ } @$p );
 }
 
 sub save
@@ -35,13 +35,13 @@ sub save
   my ( $setch, $unsetch ) = $self->get(-setch,-unsetch );
   $self->set(-file => $file,-setch => ' 1',-unsetch => ' 0');
 
-  open my $fh, ">$file" or die "Failed to open `$file': $!";
+  open my $f, ">$file" or die "Failed to open `$file': $!";
   local $\ = "\n";
-  print $fh 'P1';
-  print $fh "# $file";
-  print $fh $self->get(-width );
-  print $fh $self->get(-height );
-  print $fh $self->as_string;
+  print $f 'P1';
+  print $f "# $file";
+  print $f $self->get(-width );
+  print $f $self->get(-height );
+  print $f $self->as_string;
 
   $self->set(-setch => $setch,-unsetch => $unsetch );
 }
@@ -137,7 +137,7 @@ Steffen Goeldner <sgoeldner@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2004 Steffen Goeldner. All rights reserved.
+Copyright (c) 2004, 2012 Steffen Goeldner. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

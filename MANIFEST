@@ -5,3 +5,4 @@ README
 Pbm.pm
 t/00use.t
 t/10misc.t
+META.yml                                 Module meta-data (added by MakeMaker)
